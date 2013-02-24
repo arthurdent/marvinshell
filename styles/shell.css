@@ -1,0 +1,26 @@
+body {
+	border: 0px;
+	margin-left: 15px;
+	padding: 0px;
+	overflow:hidden;
+}
+
+#shell, #left-input, #right-input {
+	font-size: 16px;
+	color: #15cc15;
+	border: 0px solid #000;
+	/*outline: none;
+	*/margin: 0px;
+	padding: 0px;
+	width: 100%;
+	font-family: monospace,"DejaVu Sans Mono",Monaco,"Andale Mono","Liberation Mono",fixedsys;
+}
+
+#cursor {
+	color: #000;
+	background: #15cc15;
+}
+
+#screen {
+	overflow: hidden;	
+}

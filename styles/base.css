@@ -1,0 +1,97 @@
+body {
+	background-color:#000700;
+	/*color:#15cc15;*/
+	color:#008800;
+	font-family: monospace,"DejaVu Sans Mono",Monaco,"Andale Mono","Liberation Mono",fixedsys;
+	padding:15px;
+}
+#layerNeko0 { 
+	display: none; 
+}
+ul {
+	list-style: none;
+	padding-left: 1em;
+}
+ul li:before  {
+	content: "\002A \0020";
+	color: #00ff00;
+}
+a {
+	text-decoration:underline;
+	color:#33ff33;
+}
+li a {
+	text-decoration:none;
+	color:#009900;
+}
+a:hover {
+	color:#00ff00;
+}
+#header-content {
+	display: table;
+}
+	aside {
+		display: table-cell;
+		position: relative;
+		top: 50%;
+		/* pad equally on the right side, have to add body padding */
+		padding-right: 65px;
+		/* Firefox doesn't like this, changed to padding the image. */
+		/* left: 50px;*/
+		min-width:450px;
+	}
+	#imgwall {
+		display: table-cell;
+		width:170px;
+		height:200px;
+		padding-right:50px;
+	}
+	#imgwall img {
+		border:1px;
+		border-style:dotted;
+		border-color:#000000;
+		vertical-align:top;
+	}
+	#imgwall img:hover {
+		border-color:#00ff00;
+	}
+
+.quote-space {
+	font-size: 12px;
+	vertical-align:middle;
+}
+
+.titlebar {
+	border: 1px dashed #15cc15;
+	padding: 5px;
+	margin-top:15px;
+	margin-bottom:-1px;
+}
+.bash {
+	border:1px;
+	padding: 10px;
+	min-height: 200px;
+	border-style:dashed;
+	border-color:#15cc15;
+	position:relative;
+}
+.prompt {
+	position:absolute;
+	bottom:10px;
+}
+
+@-webkit-keyframes blinker {  
+  from { opacity: 1.0; }
+  to { opacity: 0.0; }
+}
+.css3-blink {
+  -webkit-animation-name: blinker;  
+  -webkit-animation-iteration-count: infinite;  
+  -webkit-animation-timing-function: cubic-bezier(1.0,0,0,1.0);
+  -webkit-animation-duration: 1.5s;
+	text-decoration:blink; 
+}
+.hidden a, .hidden a:hover{
+	color: #000700;
+}
+
