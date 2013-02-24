@@ -1,2 +1,3 @@
-write.sh # stupid script to move from staging to main page.
+# stupid script to move from staging to main page.
+write.sh
 *.swp
