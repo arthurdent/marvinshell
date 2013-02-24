@@ -32,7 +32,7 @@ var Terminal = {
 
 	/* Move forward one place in history */
 	histNext: function() {
-		if (this.histPos < this.history.length) {
+		if (this.histPos < this.history.length - 1) {
 			this.histPos += 1;
 			if (this.history[this.histPos] != undefined)
 				this.buffer = this.history[this.histPos];
@@ -56,7 +56,6 @@ var Terminal = {
 	addChar: function(c) {
 		this.buffer = this.buffer.substring(0,this.cursPos) + c + this.buffer.substring(this.cursPos,this.buffer.length);
 		this.cursorRight(1);
-		this.histMod(this.buffer);
 		this.refresh();
 	},
 
@@ -109,7 +108,6 @@ var Terminal = {
 		
 		// Add to history
 		if (this.buffer != '') {
-			this.histMod(this.buffer);
 			this.histPos = this.history.length;
 			this.history[this.history.length] = '';
 		}
@@ -127,6 +125,7 @@ var Terminal = {
 	
 	/* Redraw the output */
 	refresh: function() {
+		this.histMod(this.buffer);
 		$('#left-input').html(encode(this.buffer.substring(0,this.cursPos)));
 		$('#cursor').html(encode(this.buffer.substring(this.cursPos,this.cursPos+1)));
 		$('#right-input').html(encode(this.buffer.substring(this.cursPos+1,this.buffer.length)));
@@ -149,14 +148,14 @@ var Terminal = {
 			if (Binary[cmd] != undefined ) {
 				this.stdout(Binary[cmd]("",args));
 			} else {
-				this.stdout("bash: " + str + ": command not found");
+				this.stdout("bash: " + str.split(/\b/)[0] + ": command not found\n");
 			}
 		}
 	},
 
 	/* Send output to the shell. No unbuffered stderr in this iteration of MarvinShell. */
 	stdout: function(str) {
-		$('#shell').append(encode(str + "\n"));
+		$('#shell').append(encode(str));
 	},
 
 	/* Hopefully this works in all browsers, I don't know. 
