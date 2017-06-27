@@ -24,17 +24,39 @@ var Binary = {
 			Terminal.clear();
 		}
 		return '';
+	},
+
+	ls: function(stdin, args) {
+	
+		// cwd
+		if (args[0] != undefined) {
+
+
+		}
+		
+		// from root dir
+		else if(args[0] == '/') {
+
+		}
+
+		// from $cwd
+		else {
+
+		}
+
+
 	}
+
 	/*
 	rt: function(args) {
 		var re = new RegExp("-[0-9a-zA-Z]*.","g");
 		return (re.exec(args) + "").split("");
 	},
 	*/
-	
-	
 
 }
+
+
 
 /* Flag Helper
  * Usage: 

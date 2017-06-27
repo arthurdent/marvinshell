@@ -1,4 +1,5 @@
 function encode(str) {
+	if (str == undefined) return;
 	str = str.replace(/&/g, '&amp;');
 	str = str.replace(/</g, '&lt;');
 	str = str.replace(/>/g, '&gt;');
@@ -8,6 +9,88 @@ function encode(str) {
 }
 
 /* Is this really how you do things in javascript? */
+
+var State = {
+
+	computer    : {'127.0.0.1': new Computer()},
+	active_term : function() { return this.computer['127.0.0.1'] },
+
+	init : function() {
+		this.active_term().init();
+	}
+
+};
+
+// Computer Object
+function Computer() {
+
+	this.vars = {
+		PS1: 'wat@dox:~$ ',
+		PATH: '/bin',
+		PWD: '/home',
+	}
+
+	this.sys = {
+		version: '0.2a',
+		motd: 'Welcome to MarvinShell: \'cat /tmp/tutorial\' for further instructions.',
+		histPos: 0,
+		curPos: 0,
+	}
+
+	this.history = [];
+
+	this.filesystem = basic_fs();
+
+	this.init = function() {
+		Terminal.stdout(this.sys.motd + '\nVersion ' + this.sys.version + '\n');
+		$('#PS1').html(this.vars.PS1);
+		Terminal.refresh();
+	}
+
+}
+
+// Basic File system
+function basic_fs() {
+
+	return {
+		'bin' : {
+			'type' : 'dir',
+			'ls' : {
+				'type' : 'bin',
+				'bin'  : 'ls',
+			},
+			'cd' : {
+				'type' : 'bin',
+				'bin'  : 'cd',
+			},
+			'mash' : {
+				'type' : 'bin',
+				'bin'  : 'mash',
+			},
+			'femto' : {
+				'type' : 'bin',
+				'bin'  : 'femto',
+			},
+		},
+		'log' : {
+			'type' : 'dir',
+			'test' : {
+				'type'  : 'ascii',
+				'ascii' : 'test file\n',
+			},
+		},
+		'tmp' : {
+			'type' : 'dir',
+			'tutorial' : {
+				'type'  : 'ascii',
+				'ascii' : 'Welcome to the tutorial.\n'
+			},
+		},
+	}
+
+}
+
+// Terminal Emulator (mterm)
 var Terminal = {
 
 	version: '0.2a',                // Version number, no real purpose
@@ -15,10 +98,12 @@ var Terminal = {
 	history: [],                    // array of entered history
 	histPos: 0,                     // position in history
 	cursPos: 0,                     // cursor Position
-	PS1: 'wat@do:~$ ',              // bash $PS1
-	motd: 'Welcome to MarvinShell', // prints whenn shell starts
 	bgColor: '#000700',             // background color
 	fgColor: '#15cc15',             // foreground color
+
+	active : function() {
+		return State.active_term;
+	},
 
 	/* Move back one place in history */
 	histPrev: function() {
@@ -103,8 +188,9 @@ var Terminal = {
 
 	/* Send command and clear the current line */
 	enter: function() {
-		$('#shell').append(this.PS1 + encode(this.buffer) + '<br />');
-		this.runCommand(this.buffer);
+		$('#shell').append(State.active_term().vars.PS1 + encode(this.buffer) + '<br />');
+		this.parse(this.buffer);
+		//this.runCommand(this.buffer);
 		
 		// Add to history
 		if (this.buffer != '') {
@@ -118,9 +204,14 @@ var Terminal = {
 
 	/* Initialize the shell. Write the motd, etc. */
 	init: function() {
+
+		State.init();
+
+		/*
 		this.stdout(this.motd + '\nVersion ' + this.version + '\n');
 		$('#PS1').html(this.PS1);
 		this.refresh();
+		*/
 	},
 	
 	/* Redraw the output */
@@ -136,20 +227,50 @@ var Terminal = {
 		this.scrollToBottom();
 	},
 
+	parse: function(str) {
+
+		if (str == '') {
+			Terminal.stdout('');
+			return;
+		}
+
+		var tokens = str.split(/\ /);
+
+		// Replace variables
+		for (i in tokens) {
+			word = tokens[i];
+			if (word.charAt(0) == '$') {
+				tokens[i] = State.active_term().vars[word.substr(1)] || '';
+			}
+		}
+
+		var cmd = tokens[0];
+		var args = tokens.slice(1);
+		
+		if (Binary[cmd] != undefined ) {
+			Terminal.stdout(Binary[cmd]("", args));
+		} else {
+			Terminal.stdout("mash: " + str.split(/\b/)[0] + ": command not found\n");
+		}
+
+	},
+
 	/* Run the command typed in by the user */
 	runCommand: function(str) {
-		if (str != "") {
+		// ignore if empty
+		if (str == "") return;
 
-			// Retrieve the command.
-			var cmd = str.split(" ")[0];
-			var args = str.replace(cmd,"").replace(" ","");
+		// Retrieve the command.
+		var cmd = str.split(" ")[0];
+		var args = str.replace(cmd,"").replace(" ","");
 
-			// This whole section is complete hax.
-			if (Binary[cmd] != undefined ) {
-				this.stdout(Binary[cmd]("",args));
-			} else {
-				this.stdout("bash: " + str.split(/\b/)[0] + ": command not found\n");
-			}
+		// Variable
+
+		// This whole section is complete hax.
+		if (Binary[cmd] != undefined ) {
+			this.stdout(Binary[cmd]("",args));
+		} else {
+			this.stdout("mash: " + str.split(/\b/)[0] + ": command not found\n");
 		}
 	},
 
