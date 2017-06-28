@@ -1,5 +1,6 @@
 function encode(str) {
 	if (str == undefined) return;
+	str = str + '';
 	str = str.replace(/&/g, '&amp;');
 	str = str.replace(/</g, '&lt;');
 	str = str.replace(/>/g, '&gt;');
@@ -12,12 +13,10 @@ function encode(str) {
 
 var State = {
 
-	computer    : {'127.0.0.1': new Computer()},
+	computer    : {
+		'127.0.0.1': new Computer(),
+	},
 	active_term : function() { return this.computer['127.0.0.1'] },
-
-	init : function() {
-		this.active_term().init();
-	}
 
 };
 
@@ -28,6 +27,9 @@ function Computer() {
 		PS1: 'wat@dox:~$ ',
 		PATH: '/bin',
 		PWD: '/home',
+		SHELL: '/bin/mash',
+		USER: 'neo',
+		HOME: '/home/neo',
 	}
 
 	this.sys = {
@@ -83,7 +85,7 @@ function basic_fs() {
 			'type' : 'dir',
 			'tutorial' : {
 				'type'  : 'ascii',
-				'ascii' : 'Welcome to the tutorial.\n'
+				'ascii' : 'Welcome to the tutorial.\n',
 			},
 		},
 	}
@@ -101,13 +103,10 @@ var Terminal = {
 	bgColor: '#000700',             // background color
 	fgColor: '#15cc15',             // foreground color
 
-	active : function() {
-		return State.active_term;
-	},
-
 	/* Move back one place in history */
 	histPrev: function() {
 		if (this.histPos > 0) {
+			this.histMod(this.buffer);
 			this.histPos -= 1;
 			this.buffer = this.history[this.histPos];
 			this.cursPos = this.buffer.length;
@@ -118,6 +117,7 @@ var Terminal = {
 	/* Move forward one place in history */
 	histNext: function() {
 		if (this.histPos < this.history.length - 1) {
+			this.histMod(this.buffer);
 			this.histPos += 1;
 			if (this.history[this.histPos] != undefined)
 				this.buffer = this.history[this.histPos];
@@ -131,6 +131,19 @@ var Terminal = {
 	/* Modify history (the ultimate superpower) */
 	histMod: function(line) {
 		this.history[this.histPos] = line;
+	},
+
+	histAppend: function(line) {
+		if (this.buffer !== '') {
+			this.history.pop();
+			if (this.buffer !== this.history[this.history.length-1]) {
+				this.history.push(this.buffer);
+			}
+			this.history.push('');
+			this.buffer = '';
+			this.histPos = this.history.length-1;
+			this.cursPos = 0;
+		}
 	},
 
 	histLine: function() {
@@ -154,20 +167,13 @@ var Terminal = {
 	/* Delete the character to the right of the cursor position. */
 	delChar: function() {
 		this.buffer = this.buffer.substring(0, this.cursPos) + this.buffer.substring(this.cursPos+1, this.buffer.length);
+		this.histMod(this.buffer);
 		this.refresh();
 	},
 	
 	/* Clear the output of the shell */
 	clear: function() {
 		$("#shell").html('');
-	},
-
-	/* Remove all text from the line to be printed */
-	clearBuffer: function(c) {
-		this.buffer = '';
-		this.cursPos = 0;
-		this.histPos = this.history.length - 1;
-		this.refresh();
 	},
 
 	/* Move the cursor to the left */
@@ -188,35 +194,22 @@ var Terminal = {
 
 	/* Send command and clear the current line */
 	enter: function() {
+
+		// Append to screen
 		$('#shell').append(State.active_term().vars.PS1 + encode(this.buffer) + '<br />');
 		this.parse(this.buffer);
-		//this.runCommand(this.buffer);
 		
-		// Add to history
-		if (this.buffer != '') {
-			this.histPos = this.history.length;
-			this.history[this.history.length] = '';
-		}
+		// Append to history
+		this.histAppend(this.buffer);
 
-		this.clearBuffer();
+		// Redraw
 		this.refresh();
+
 	},
 
-	/* Initialize the shell. Write the motd, etc. */
-	init: function() {
-
-		State.init();
-
-		/*
-		this.stdout(this.motd + '\nVersion ' + this.version + '\n');
-		$('#PS1').html(this.PS1);
-		this.refresh();
-		*/
-	},
-	
 	/* Redraw the output */
 	refresh: function() {
-		this.histMod(this.buffer);
+		//this.histMod(this.buffer);
 		$('#left-input').html(encode(this.buffer.substring(0,this.cursPos)));
 		$('#cursor').html(encode(this.buffer.substring(this.cursPos,this.cursPos+1)));
 		$('#right-input').html(encode(this.buffer.substring(this.cursPos+1,this.buffer.length)));
@@ -229,49 +222,48 @@ var Terminal = {
 
 	parse: function(str) {
 
+		//TODO: - escape sequences (probably can't actually do with regex)
+		
 		if (str == '') {
 			Terminal.stdout('');
 			return;
 		}
 
-		var tokens = str.split(/\ /);
+		// Pretty good regex for tokenizing (doesn't handle escaped quotes)
+		var tokens = str.match(/\S+?\=|[^\s"']+|"[^"]*"|'[^']*'/g);
+		
+		for (var ti in tokens) {
 
-		// Replace variables
-		for (i in tokens) {
-			word = tokens[i];
-			if (word.charAt(0) == '$') {
-				tokens[i] = State.active_term().vars[word.substr(1)] || '';
+			if (tokens[ti].charAt(0) !== "'") {
+				var varlist = tokens[ti].match(/\$\S+?\b/g);
+				for (var vi in varlist) {
+					tokens[ti] = tokens[ti].replace(varlist[vi], State.active_term().vars[varlist[vi].replace('$','')] || '');
+				}
 			}
+
+			tokens[ti] = tokens[ti].replace(/['"]/g,'');
+
 		}
+
+		// Remove empty tokens
+		tokens = tokens.filter(function (e) { return e !== ''});
 
 		var cmd = tokens[0];
 		var args = tokens.slice(1);
-		
-		if (Binary[cmd] != undefined ) {
-			Terminal.stdout(Binary[cmd]("", args));
-		} else {
-			Terminal.stdout("mash: " + str.split(/\b/)[0] + ": command not found\n");
+
+		// Set Var
+		if (cmd.slice(-1) == '=') {
+			State.active_term().vars[cmd.slice(0,-1)] = args[0];
+		}
+		// Run binary
+		else if (Binary[cmd] != undefined) {
+			Binary[cmd]("", args);
+		}
+		// ???
+		else {
+			Terminal.stdout("mash: " + cmd + ": command not found\n");
 		}
 
-	},
-
-	/* Run the command typed in by the user */
-	runCommand: function(str) {
-		// ignore if empty
-		if (str == "") return;
-
-		// Retrieve the command.
-		var cmd = str.split(" ")[0];
-		var args = str.replace(cmd,"").replace(" ","");
-
-		// Variable
-
-		// This whole section is complete hax.
-		if (Binary[cmd] != undefined ) {
-			this.stdout(Binary[cmd]("",args));
-		} else {
-			this.stdout("mash: " + str.split(/\b/)[0] + ": command not found\n");
-		}
 	},
 
 	/* Send output to the shell. No unbuffered stderr in this iteration of MarvinShell. */
@@ -291,6 +283,6 @@ var Terminal = {
 // GO GO GO!
 $(document).ready(function() {
 
-		Terminal.init();
+		State.active_term().init();
 
 });

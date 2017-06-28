@@ -12,18 +12,35 @@ var Binary = {
 	
 		output += getflags(args);
 
-		return output + '\n';
+		Terminal.stdout(output + '\n');
+		return 0;
 	},
 
 	test: function(stdin, args) {
-		return "ARGS: " + args + '\n';
+		Terminal.stdout("ARGS: " + args + '\n');
+		return 0;
 	},
 	
 	clear: function(stdin, args) {
 		if (args[0] == undefined) {
 			Terminal.clear();
 		}
-		return '';
+		return 0;
+	},
+
+	env: function(stdin, args) {
+		vars = State.active_term().vars;
+
+		// List all vars
+		Object.keys(vars).forEach(function(k) {
+			Terminal.stdout(k+'='+vars[k]+'\n');
+		});
+		return 0;
+	},
+
+	echo: function(stdin, args) {
+		Terminal.stdout(args.join(' ') + '\n');
+		return 0;
 	},
 
 	ls: function(stdin, args) {
