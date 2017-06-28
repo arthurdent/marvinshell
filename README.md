@@ -1,20 +1,27 @@
 # Marvin Shell
 
-Bash-like fake cli written in javascript / jquery. To be embedded in a webpage. Inspired by uni.xkcd.com; 
-not intended to be as flashy, but a closer mimic to a real bash shell. I have learned a lot about language 
-parsing since starting this project a couple of years ago. I plan to rewrite most of this eventually.
+Bash-like game/cli-sim written in javascript / jquery. To be embedded in a webpage. Originally inspired by uni.xkcd.com.
+
+When complete, it will have multiple computers, filesystems, and a decent bash clone.
 
 ### Complete
-* Binaries with stdin, stdout, args. (No pipes/redirection yet so stdin is not functional)
-* History (Not a perfect mimic yet, but I will revisit history when I rewrite everything else)
+* binaries with stdin, stdout, args. (No pipes/redirection yet so stdin is not functional)
+* history
+* variables
+* builtins: echo
+* coreutils (filesys): pwd
+
+### In Progress
+* coreutils (text): cat
+* filesystem (JSON with LocalStorage persistence)
+* builtins: cd, unset
+* coreutils (file): cp, file, mkdir, mv, rmdir, touch
 
 ### Todo
-* Variables
-* Pipes, Redirection
+* pipes, redirection
 * &&, ||, ;
-* Some bash builtins ( [, alias, cd, echo, history, pwd, read, return, set, shift, test, unalias, unset)
-* Some coreutils file utilities (cp, ln, mkdir, mkfifo (maybe), mv, rm, rmdir, touch)
-* Some corutils text utilities ( cat, head, tac, tail, wc)
-* Some corutils shell utilities (basename, date, dirname, false, pwd, sleep, true, uname, whoami, yes)
-* JSON mock-filesystem. 
-* Offer storing filesystem with cookies for (semi) persistency.
+* builtins: [, alias, history, read, return, set, shift, test, unalias
+* coreutils (file): ln, mkfifo, basename, dirname
+* coreutils (text): head, tac, tail, wc, femto (nano clone)
+* coreutils (shell): (basename, date, dirname, false, pwd, sleep, true, uname, whoami)
+* multi-user support

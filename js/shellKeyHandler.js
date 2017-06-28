@@ -48,6 +48,7 @@ $(document).ready(function() {
 		}
 
 		// Handle CTRL key events
+		// TODO: Add ctrl-a, ctrl-e
 		if (key[17]) {
 
 			// Cancel: bookmarking, file saving, highlight all
