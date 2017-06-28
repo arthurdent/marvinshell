@@ -1,15 +1,14 @@
-var Binary = {
-	   
-	/* 
-	 * Binaries live here. Anything returned
-	 * is printed to "stdout". Don't forget to
-	 * add a newline, if the binary prints.
-	 */
+/* 
+ * Binaries live here. 
+ * Returns 0 on success.
+ */
+
+var Builtin = {
 
 	flags: function(stdin, args) {
 		var output;
 		output = "Flags: ";
-	
+
 		output += getflags(args);
 
 		Terminal.stdout(output + '\n');
@@ -20,7 +19,22 @@ var Binary = {
 		Terminal.stdout("ARGS: " + args + '\n');
 		return 0;
 	},
-	
+
+	echo: function(stdin, args) {
+		Terminal.stdout(args.join(' ') + '\n');
+		return 0;
+	},
+
+	pwd: function(stdin, args) {
+		Terminal.stdout(State.active_term().vars["PWD"] + "\n");
+		return 0;
+	},
+
+
+}
+
+var Binary = {
+
 	clear: function(stdin, args) {
 		if (args[0] == undefined) {
 			Terminal.clear();
@@ -38,19 +52,15 @@ var Binary = {
 		return 0;
 	},
 
-	echo: function(stdin, args) {
-		Terminal.stdout(args.join(' ') + '\n');
-		return 0;
-	},
 
 	ls: function(stdin, args) {
-	
+
 		// cwd
 		if (args[0] != undefined) {
 
 
 		}
-		
+
 		// from root dir
 		else if(args[0] == '/') {
 
@@ -64,15 +74,7 @@ var Binary = {
 
 	}
 
-	/*
-	rt: function(args) {
-		var re = new RegExp("-[0-9a-zA-Z]*.","g");
-		return (re.exec(args) + "").split("");
-	},
-	*/
-
 }
-
 
 
 /* Flag Helper

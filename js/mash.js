@@ -1,3 +1,7 @@
+/* 
+ * Stuff I didn't put in other files (yet?)
+ */
+
 function encode(str) {
 	if (str == undefined) return;
 	str = str + '';
@@ -10,87 +14,6 @@ function encode(str) {
 }
 
 /* Is this really how you do things in javascript? */
-
-var State = {
-
-	computer    : {
-		'127.0.0.1': new Computer(),
-	},
-	active_term : function() { return this.computer['127.0.0.1'] },
-
-};
-
-// Computer Object
-function Computer() {
-
-	this.vars = {
-		PS1: 'wat@dox:~$ ',
-		PATH: '/bin',
-		PWD: '/home',
-		SHELL: '/bin/mash',
-		USER: 'neo',
-		HOME: '/home/neo',
-	}
-
-	this.sys = {
-		version: '0.2a',
-		motd: 'Welcome to MarvinShell: \'cat /tmp/tutorial\' for further instructions.',
-		histPos: 0,
-		curPos: 0,
-	}
-
-	this.history = [];
-
-	this.filesystem = basic_fs();
-
-	this.init = function() {
-		Terminal.stdout(this.sys.motd + '\nVersion ' + this.sys.version + '\n');
-		$('#PS1').html(this.vars.PS1);
-		Terminal.refresh();
-	}
-
-}
-
-// Basic File system
-function basic_fs() {
-
-	return {
-		'bin' : {
-			'type' : 'dir',
-			'ls' : {
-				'type' : 'bin',
-				'bin'  : 'ls',
-			},
-			'cd' : {
-				'type' : 'bin',
-				'bin'  : 'cd',
-			},
-			'mash' : {
-				'type' : 'bin',
-				'bin'  : 'mash',
-			},
-			'femto' : {
-				'type' : 'bin',
-				'bin'  : 'femto',
-			},
-		},
-		'log' : {
-			'type' : 'dir',
-			'test' : {
-				'type'  : 'ascii',
-				'ascii' : 'test file\n',
-			},
-		},
-		'tmp' : {
-			'type' : 'dir',
-			'tutorial' : {
-				'type'  : 'ascii',
-				'ascii' : 'Welcome to the tutorial.\n',
-			},
-		},
-	}
-
-}
 
 // Terminal Emulator (mterm)
 var Terminal = {
@@ -170,7 +93,7 @@ var Terminal = {
 		this.histMod(this.buffer);
 		this.refresh();
 	},
-	
+
 	/* Clear the output of the shell */
 	clear: function() {
 		$("#shell").html('');
@@ -198,7 +121,7 @@ var Terminal = {
 		// Append to screen
 		$('#shell').append(State.active_term().vars.PS1 + encode(this.buffer) + '<br />');
 		this.parse(this.buffer);
-		
+
 		// Append to history
 		this.histAppend(this.buffer);
 
@@ -223,7 +146,7 @@ var Terminal = {
 	parse: function(str) {
 
 		//TODO: - escape sequences (probably can't actually do with regex)
-		
+
 		if (str == '') {
 			Terminal.stdout('');
 			return;
@@ -231,7 +154,7 @@ var Terminal = {
 
 		// Pretty good regex for tokenizing (doesn't handle escaped quotes)
 		var tokens = str.match(/\S+?\=|[^\s"']+|"[^"]*"|'[^']*'/g);
-		
+
 		for (var ti in tokens) {
 
 			if (tokens[ti].charAt(0) !== "'") {
@@ -255,6 +178,10 @@ var Terminal = {
 		if (cmd.slice(-1) == '=') {
 			State.active_term().vars[cmd.slice(0,-1)] = args[0];
 		}
+		// Run builtin
+		else if (Builtin[cmd] != undefined) {
+			Builtin[cmd]("", args);
+		}
 		// Run binary
 		else if (Binary[cmd] != undefined) {
 			Binary[cmd]("", args);
@@ -274,7 +201,7 @@ var Terminal = {
 	/* Hopefully this works in all browsers, I don't know. 
 	 * I left a note to myself about it being broken a while back.
 	 */
-  	scrollToBottom: function() {
+	scrollToBottom: function() {
 		$(document).scrollTop($('#screen').prop('scrollHeight'));
 	},
 
@@ -283,6 +210,6 @@ var Terminal = {
 // GO GO GO!
 $(document).ready(function() {
 
-		State.active_term().init();
+	State.active_term().init();
 
 });
