@@ -42,35 +42,53 @@ function basic_fs() {
 	return {
 		'bin' : {
 			'type' : 'dir',
-			'ls' : {
-				'type' : 'bin',
-				'bin'  : 'ls',
+			'files' : {
+				'ls' : {
+					'type' : 'bin',
+						'bin'  : 'ls',
+				},
+					'cd' : {
+						'type' : 'bin',
+							'bin'  : 'cd',
+					},
+					'mash' : {
+						'type' : 'bin',
+							'bin'  : 'mash',
+					},
+					'femto' : {
+						'type' : 'bin',
+							'bin'  : 'femto',
+					},
 			},
-			'cd' : {
-				'type' : 'bin',
-				'bin'  : 'cd',
-			},
-			'mash' : {
-				'type' : 'bin',
-				'bin'  : 'mash',
-			},
-			'femto' : {
-				'type' : 'bin',
-				'bin'  : 'femto',
+		},
+		'home' : {
+			'type' : 'dir',
+			'files' : {
+				'neo' : {
+					'type' : 'dir',
+					'files' : {
+						
+					},
+				},
+
 			},
 		},
 		'log' : {
 			'type' : 'dir',
-			'test' : {
-				'type'  : 'ascii',
-				'ascii' : 'test file\n',
+			'files' : {
+				'test' : {
+					'type'  : 'ascii',
+					'ascii' : 'test file\n',
+				},
 			},
 		},
 		'tmp' : {
 			'type' : 'dir',
-			'tutorial' : {
-				'type'  : 'ascii',
-				'ascii' : 'Welcome to the tutorial.\n',
+			'files' : {
+				'tutorial' : {
+					'type'  : 'ascii',
+					'ascii' : 'Welcome to the tutorial.\n',
+				},
 			},
 		},
 	}

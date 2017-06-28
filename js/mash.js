@@ -18,7 +18,6 @@ function encode(str) {
 // Terminal Emulator (mterm)
 var Terminal = {
 
-	version: '0.2a',                // Version number, no real purpose
 	buffer: '',                     // current text in the shell
 	history: [],                    // array of entered history
 	histPos: 0,                     // position in history
