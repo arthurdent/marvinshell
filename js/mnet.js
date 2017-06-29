@@ -2,6 +2,10 @@
  * Networking mumbo
  */
 
+function active() {
+	return State.active_term();
+}
+
 var State = {
 
 	computer    : {

@@ -2,19 +2,18 @@
  * Computer
  */
 
-
 /* Is this really how you do things in javascript? */
 
 // Computer Object
 function Computer() {
 
 	this.vars = {
-		PS1: 'wat@dox:~$ ',
+		HOME: '/home/ford',
 		PATH: '/bin',
+		PS1: 'ford@prefect:~$ ',
 		PWD: '/home',
 		SHELL: '/bin/mash',
-		USER: 'neo',
-		HOME: '/home/neo',
+		USER: 'ford',
 	}
 
 	this.sys = {
@@ -34,63 +33,104 @@ function Computer() {
 		Terminal.refresh();
 	}
 
+	/* Checks if dir exists and is dir */
+	this.isDir = function(path) {
+		if (path == '/')
+			return true;
+		if (path.replace(/^\/|\/$/g,'').split('/').reduce((o,i)=>o.files[i], this.filesystem))
+			return true;
+		return false;
+	}
+
+	/* Returns file object of dir, full path only */
+	this.getDir = function(path) {
+		return this.getDirMeta(path).files;
+	}
+
+	/* Dir meta attributes, full path only */
+	this.getDirMeta = function(path) {
+		return path.replace(/^\/|\/$/g,'').split('/').reduce((o,i)=>o.files[i], this.filesystem) || this.filesystem;
+	}
+
+	/* Add a file to a dir */
+	this.addDir = function(dest,name) {
+		dest[name] = { 
+			'type':'dir',
+			'files' : {},
+		}
+	}
+
+	/* Add a file.
+	 * type: bin, ascii
+	 * data: binary name or ascii data
+	 */
+	this.addFile = function(dest,name,ftype,data) {
+		dest.files[name] = {
+			'type' : ftype,
+			'data' : data,
+		}
+	}
+
 }
 
 // Basic File system
 function basic_fs() {
 
 	return {
-		'bin' : {
-			'type' : 'dir',
-			'files' : {
-				'ls' : {
-					'type' : 'bin',
-						'bin'  : 'ls',
-				},
+		'files' : {
+			'bin' : {
+				'type' : 'dir',
+				'files' : {
+					'ls' : {
+						'type' : 'bin',
+						'data'  : Binary.ls,
+					},
 					'cd' : {
 						'type' : 'bin',
-							'bin'  : 'cd',
+						'data'  : Binary.cd,
 					},
+					/*
 					'mash' : {
 						'type' : 'bin',
-							'bin'  : 'mash',
+						'data'  : 'mash',
 					},
 					'femto' : {
 						'type' : 'bin',
-							'bin'  : 'femto',
+						'data'  : 'femto',
 					},
-			},
-		},
-		'home' : {
-			'type' : 'dir',
-			'files' : {
-				'neo' : {
-					'type' : 'dir',
-					'files' : {
-						
-					},
+					*/
 				},
+			},
+			'home' : {
+				'type' : 'dir',
+				'files' : {
+					'ford' : {
+						'type' : 'dir',
+						'files' : {
+						},
+					},
 
-			},
-		},
-		'log' : {
-			'type' : 'dir',
-			'files' : {
-				'test' : {
-					'type'  : 'ascii',
-					'ascii' : 'test file\n',
 				},
 			},
-		},
-		'tmp' : {
-			'type' : 'dir',
-			'files' : {
-				'tutorial' : {
-					'type'  : 'ascii',
-					'ascii' : 'Welcome to the tutorial.\n',
+			'log' : {
+				'type' : 'dir',
+				'files' : {
+					'syslog' : {
+						'type'  : 'ascii',
+						'data' : 'test file\n',
+					},
 				},
 			},
-		},
+			'tmp' : {
+				'type' : 'dir',
+				'files' : {
+					'tutorial' : {
+						'type'  : 'ascii',
+						'data' : 'Welcome to the tutorial.\n',
+					},
+				},
+			},
+		}, 
 	}
 
 }

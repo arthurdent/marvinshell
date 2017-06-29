@@ -26,10 +26,23 @@ var Builtin = {
 	},
 
 	pwd: function(stdin, args) {
-		Terminal.stdout(State.active_term().vars["PWD"] + "\n");
+		Terminal.stdout(active().vars["PWD"] + "\n");
 		return 0;
 	},
 
+	cd: function(stdin, args) {
+		if (!args[0]) {
+			active().vars.PWD = active().vars["HOME"];
+		}
+		else if (active().isDir(args[0])) {
+			active().vars.PWD = args[0];
+			return 0;
+		} 
+		else {
+			Terminal.stdout("-mash: cd: " +  args[0] + ": no such directory.\n");
+			return 1;
+		}
+	},
 
 }
 
@@ -43,7 +56,7 @@ var Binary = {
 	},
 
 	env: function(stdin, args) {
-		vars = State.active_term().vars;
+		vars = active().vars;
 
 		// List all vars
 		Object.keys(vars).forEach(function(k) {
@@ -54,24 +67,25 @@ var Binary = {
 
 
 	ls: function(stdin, args) {
-
-		// cwd
-		if (args[0] != undefined) {
-
-
+		
+		if (args[0]) {
+			if (!active().isDir(args[0])) {
+				Terminal.stdout("-mash: cd: " +  args[0] + ": no such directory.\n");
+				return 1;
+			}
+			files = active().getDir(args[0]);
 		}
-
-		// from root dir
-		else if(args[0] == '/') {
-
-		}
-
-		// from $cwd
 		else {
-
+			files = active().getDir(active().vars.PWD);
 		}
 
+		for (fname in files) {
+			Terminal.stdout(fname+' ');
+		}
+		
+		Terminal.stdout('\n');
 
+		return 0;
 	}
 
 }
